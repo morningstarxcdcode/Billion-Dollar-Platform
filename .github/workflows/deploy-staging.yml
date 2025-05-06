@@ -1,0 +1,77 @@
+name: Staging Deployment
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v2
+
+    - name: Login to Docker Registry
+      uses: docker/login-action@v2
+      with:
+        registry: ${{ secrets.DOCKER_REGISTRY }}
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Generate Build ID
+      id: build_id
+      run: echo "BUILD_ID=$(date +%Y%m%d)-${GITHUB_SHA::8}" >> $GITHUB_ENV
+
+    - name: Build and push backend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./my-express-app
+        push: true
+        tags: ${{ secrets.DOCKER_REGISTRY }}/billion-dollar-backend:staging-${{ env.BUILD_ID }}
+        cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/billion-dollar-backend:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/billion-dollar-backend:buildcache,mode=max
+
+    - name: Build and push frontend
+      uses: docker/build-push-action@v4
+      with:
+        context: ./frontend
+        push: true
+        tags: ${{ secrets.DOCKER_REGISTRY }}/billion-dollar-frontend:staging-${{ env.BUILD_ID }}
+        cache-from: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/billion-dollar-frontend:buildcache
+        cache-to: type=registry,ref=${{ secrets.DOCKER_REGISTRY }}/billion-dollar-frontend:buildcache,mode=max
+
+    - name: Deploy to Staging Server
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.STAGING_HOST }}
+        username: ${{ secrets.STAGING_USERNAME }}
+        key: ${{ secrets.STAGING_SSH_KEY }}
+        script: |
+          cd /opt/billion-dollar-platform-staging
+          echo "TAG=staging-${{ env.BUILD_ID }}" > .env
+          echo "DOCKER_REGISTRY=${{ secrets.DOCKER_REGISTRY }}" >> .env
+          echo "DOMAIN=${{ secrets.STAGING_DOMAIN }}" >> .env
+          echo "MONGO_USER=${{ secrets.MONGO_USER }}" >> .env
+          echo "MONGO_PASSWORD=${{ secrets.MONGO_PASSWORD }}" >> .env
+          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+          docker-compose -f docker-compose.prod.yml pull
+          docker-compose -f docker-compose.prod.yml up -d
+          docker system prune -f
+
+    - name: Notify Deployment Status
+      if: always()
+      uses: slackapi/slack-github-action@v1.24.0
+      with:
+        channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+        slack-message: |
+          Staging Deployment Status: ${{ job.status }}
+          Build ID: ${{ env.BUILD_ID }}
+          Commit: ${{ github.sha }}
+          Deployed by: ${{ github.actor }}
+      env:
+        SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
