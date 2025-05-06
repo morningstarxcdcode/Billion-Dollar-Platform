@@ -1,3 +1,4 @@
+// Removed duplicate import of express
 import express from 'express';
 import mongoose from 'mongoose';
 import rateLimit from 'express-rate-limit';
@@ -11,6 +12,7 @@ import { monitoringMiddleware } from './middleware/monitoring.middleware';
 import { register } from './services/monitoring';
 
 const app = express();
+export { app };
 
 // Connect to MongoDB
 mongoose.connect(config.mongoUri)
@@ -39,7 +41,17 @@ const limiter = rateLimit({
 app.use('/api', limiter);
 
 // Logger middleware
-app.use(logger);
+// Remove this line because logger is not an Express middleware
+// app.use(logger);
+
+// Instead, use the loggerMiddleware as middleware
+import { loggerMiddleware } from './middleware/logger.middleware';
+app.use(loggerMiddleware);
+
+// Root route for welcome message
+app.get('/', (req, res) => {
+  res.status(200).send('Welcome to the Express App');
+});
 
 // Metrics endpoint
 app.get('/metrics', async (req, res) => {
