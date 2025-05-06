@@ -1,27 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
 import { logger } from '../config/logger';
 
-export const loggingMiddleware = (req: Request, res: Response, next: NextFunction) => {
-  const startTime = Date.now();
+export { logger };
 
-  res.on('finish', () => {
-    const duration = Date.now() - startTime;
-    logger.info('Request processed', {
-      method: req.method,
-      path: req.path,
-      statusCode: res.statusCode,
-      duration,
-      userAgent: req.get('user-agent'),
-      ip: req.ip
-    });
-  });
-
+export const authenticationMiddleware = (req: Request, res: Response, next: NextFunction) => {
+  logger.debug('Authentication middleware called');
+  // Your middleware logic here
   next();
 };
-
-export const authenticationMiddleware = (req, res, next) => {
-    // Implement authentication logic here
-    next();
-};
-
-export { loggingMiddleware as logger };

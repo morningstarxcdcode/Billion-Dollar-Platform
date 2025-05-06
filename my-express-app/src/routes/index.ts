@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import swaggerUi from 'swagger-ui-express';
 import { swaggerSpec } from '../config/swagger';
-import { IndexController } from '../controllers/index';
+import IndexController from '../controllers/index';
+
 import { AuthController } from '../controllers/auth.controller';
 import { UserController } from '../controllers/user.controller';
 import { HealthController } from '../controllers/health.controller';
