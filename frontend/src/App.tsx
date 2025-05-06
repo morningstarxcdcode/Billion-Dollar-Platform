@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ChakraProvider, ChakraProviderProps } from '@chakra-ui/react';
+import { ChakraProvider } from '@chakra-ui/react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Login } from './components/Login';
 import { Register } from './components/Register';
@@ -16,32 +16,6 @@ function PrivateRoute({ children }: { children: React.ReactNode }) {
 
   return user ? <>{children}</> : <Navigate to="/login" />;
 }
-
-function App() {
-  return (
-    <ChakraProvider>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route
-              path="/dashboard"
-              element={
-                <PrivateRoute>
-                  <Dashboard />
-                </PrivateRoute>
-              }
-            />
-            <Route path="/" element={<Navigate to="/dashboard" />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </ChakraProvider>
-  );
-}
-
-export default App;
 
 function App() {
   return (

@@ -2,12 +2,9 @@ import { useState } from 'react';
 import {
   Box,
   Button,
-  FormControl,
-  FormLabel,
   Input,
-  VStack,
+  Stack,
   Text,
-  useToast,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
@@ -18,60 +15,53 @@ export function Register() {
   const [password, setPassword] = useState('');
   const { register } = useAuth();
   const navigate = useNavigate();
-  const toast = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await register(name, email, password);
       navigate('/dashboard');
-      toast({
-        title: 'Registration successful',
-        status: 'success',
-        duration: 3000,
-      });
+      // No toast due to missing useToast
     } catch (error) {
-      toast({
-        title: 'Registration failed',
-        description: 'Please try again',
-        status: 'error',
-        duration: 3000,
-      });
+      // No toast due to missing useToast
     }
   };
 
   return (
     <Box maxW="md" mx="auto" mt={8}>
       <form onSubmit={handleSubmit}>
-        <VStack spacing={4}>
+        <Stack spacing={4}>
           <Text fontSize="2xl" fontWeight="bold">Register</Text>
-          <FormControl isRequired>
-            <FormLabel>Name</FormLabel>
+          <Box as="div" mb={4}>
+            <label htmlFor="name">Name</label>
             <Input
+              id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
             />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Email</FormLabel>
+          </Box>
+          <Box as="div" mb={4}>
+            <label htmlFor="email">Email</label>
             <Input
+              id="email"
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
-          </FormControl>
-          <FormControl isRequired>
-            <FormLabel>Password</FormLabel>
+          </Box>
+          <Box as="div" mb={4}>
+            <label htmlFor="password">Password</label>
             <Input
+              id="password"
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-          </FormControl>
+          </Box>
           <Button type="submit" colorScheme="blue" width="full">
             Register
           </Button>
-        </VStack>
+        </Stack>
       </form>
     </Box>
   );

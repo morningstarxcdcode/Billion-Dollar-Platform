@@ -3,7 +3,7 @@ import {
   Heading,
   Text,
   Button,
-  Stack,
+  VStack,
   Flex,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
@@ -20,7 +20,7 @@ export function Dashboard() {
 
   return (
     <Box maxW="4xl" mx="auto" mt={8} p={4}>
-      <Stack spacing={6} direction="column" align="stretch">
+      <VStack>
         <Flex justifyContent="space-between" alignItems="center">
           <Heading size="lg">Welcome, {user?.name}!</Heading>
           <Button onClick={handleLogout} colorScheme="red" variant="outline">
@@ -33,7 +33,7 @@ export function Dashboard() {
           <Text><strong>Name:</strong> {user?.name}</Text>
           <Text><strong>Email:</strong> {user?.email}</Text>
         </Box>
-      </Stack>
+      </VStack>
     </Box>
   );
 }
