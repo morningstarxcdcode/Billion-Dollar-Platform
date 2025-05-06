@@ -3,8 +3,7 @@ import {
   Heading,
   Text,
   Button,
-  VStack,
-  useToast,
+  Stack,
   Flex,
 } from '@chakra-ui/react';
 import { useAuth } from '../context/AuthContext';
@@ -13,21 +12,15 @@ import { useNavigate } from 'react-router-dom';
 export function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const toast = useToast();
 
   const handleLogout = () => {
     logout();
     navigate('/login');
-    toast({
-      title: 'Logged out successfully',
-      status: 'success',
-      duration: 3000,
-    });
   };
 
   return (
     <Box maxW="4xl" mx="auto" mt={8} p={4}>
-      <VStack spacing={6} align="stretch">
+      <Stack spacing={6} direction="column" align="stretch">
         <Flex justifyContent="space-between" alignItems="center">
           <Heading size="lg">Welcome, {user?.name}!</Heading>
           <Button onClick={handleLogout} colorScheme="red" variant="outline">
@@ -40,7 +33,7 @@ export function Dashboard() {
           <Text><strong>Name:</strong> {user?.name}</Text>
           <Text><strong>Email:</strong> {user?.email}</Text>
         </Box>
-      </VStack>
+      </Stack>
     </Box>
   );
 }
